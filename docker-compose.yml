@@ -1,0 +1,21 @@
+services:
+  app:
+    build: .
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    environment:
+      DATABASE_URL: postgres://forkstage:forkstage@db:5432/app
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: forkstage
+      POSTGRES_PASSWORD: forkstage
+      POSTGRES_DB: app
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U forkstage -d app"]
+      interval: 2s
+      timeout: 2s
+      retries: 30

@@ -1,0 +1,16 @@
+server:
+  port: ${PORT:8080}
+spring:
+  application:
+    name: library-api
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/app}
+    username: ${SPRING_DATASOURCE_USERNAME:forkstage}
+    password: ${SPRING_DATASOURCE_PASSWORD:forkstage}
+  flyway:
+    enabled: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

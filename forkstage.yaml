@@ -1,0 +1,24 @@
+# Forkstage: how to stand up this stack for an agent task.
+# Started from `forkstage init`; two lines edited: the ready check and the test command.
+stack: library-api
+services:
+  app:
+    build: .
+    port: 8080
+    env:
+      DATABASE_URL: postgres://forkstage:forkstage@db:5432/app
+    depends_on:
+      - db
+  db:
+    image: postgres:16
+    port: 5432
+    env:
+      POSTGRES_USER: forkstage
+      POSTGRES_PASSWORD: forkstage
+      POSTGRES_DB: app
+    data: empty
+ready:
+  - http: app/health
+tests:
+  - name: smoke
+    run: sh tests/smoke.sh
