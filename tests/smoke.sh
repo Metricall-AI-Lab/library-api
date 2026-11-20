@@ -8,7 +8,10 @@ check() { # name expected actual
 }
 
 check "health answers 200" 200 "$(curl -s -o /dev/null -w '%{http_code}' "$BASE/health")"
-check "books list is seeded" 4 "$(curl -s "$BASE/books" | grep -o '"id":' | wc -l | tr -d ' ')"
+# At least the four seeded books, whatever else a previous run added.
+count=$(curl -s "$BASE/books" | grep -o '"id":' | wc -l | tr -d ' ')
+check "books list is seeded" yes "$([ "$count" -ge 4 ] && echo yes || echo "no ($count)")"
+check "seed includes Release It!" yes "$(curl -s "$BASE/books" | grep -q 'Release It!' && echo yes || echo no)"
 created=$(curl -s -X POST -H 'content-type: application/json' -d '{"title":"Smoke Test","author":"CI"}' "$BASE/books")
 id=$(echo "$created" | sed -n 's/.*"id":\([0-9]*\).*/\1/p')
 check "a book can be created" "Smoke Test" "$(echo "$created" | sed -n 's/.*"title":"\([^"]*\)".*/\1/p')"
