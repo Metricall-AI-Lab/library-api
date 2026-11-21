@@ -17,6 +17,8 @@ id=$(echo "$created" | sed -n 's/.*"id":\([0-9]*\).*/\1/p')
 check "a book can be created" "Smoke Test" "$(echo "$created" | sed -n 's/.*"title":"\([^"]*\)".*/\1/p')"
 check "a missing book is 404" 404 "$(curl -s -o /dev/null -w '%{http_code}' "$BASE/books/999999")"
 check "a book can be lent" 200 "$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'content-type: application/json' -d '{"to":"maya"}' "$BASE/books/$id/lend")"
+check "lending it again is refused" 409 "$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'content-type: application/json' -d '{"to":"sam"}' "$BASE/books/$id/lend")"
+check "the first borrower keeps it" maya "$(curl -s "$BASE/books/$id" | sed -n 's/.*"lentTo":"\([^"]*\)".*/\1/p')"
 check "a book can be returned" 200 "$(curl -s -o /dev/null -w '%{http_code}' -X POST "$BASE/books/$id/return")"
 
 echo "tests $((pass+fail)) · pass $pass · fail $fail"

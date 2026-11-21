@@ -38,10 +38,12 @@ public class BookRepository {
         "insert into books (title, author) values (?, ?) returning *", ROW, title, author);
   }
 
-  /** Marks a book as lent. Known bug kept for the demo: a book already out can be lent again. */
+  /** Marks a book as lent, only if nobody has it. Empty when the book is missing or already out. */
   public Optional<Book> lend(long id, String to) {
     return jdbc
-        .query("update books set lent_to = ?, lent_at = now() where id = ? returning *", ROW, to, id)
+        .query(
+            "update books set lent_to = ?, lent_at = now() where id = ? and lent_to is null returning *",
+            ROW, to, id)
         .stream()
         .findFirst();
   }
