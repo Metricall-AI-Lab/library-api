@@ -39,3 +39,5 @@ forkstage down        # strike it; the proof stays
 
 Configuration: the app reads `DATABASE_URL` (`postgres://user:password@host:port/db`) and turns
 it into the Spring datasource settings; `PORT` overrides 8080.
+
+A book is lent to one person at a time.
