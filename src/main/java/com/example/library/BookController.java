@@ -49,7 +49,13 @@ public class BookController {
   public ResponseEntity<?> lend(@PathVariable long id, @RequestBody Lend body) {
     if (body == null || body.to() == null || body.to().isBlank())
       return ResponseEntity.badRequest().body(Map.of("error", "to is required"));
-    return books.lend(id, body.to()).<ResponseEntity<?>>map(ResponseEntity::ok).orElse(notFound());
+    var lent = books.lend(id, body.to());
+    if (lent.isPresent()) return ResponseEntity.ok(lent.get());
+    // Nothing updated: the book is missing, or someone already has it.
+    return books.find(id)
+        .<ResponseEntity<?>>map(b -> ResponseEntity.status(HttpStatus.CONFLICT)
+            .body(Map.of("error", "already lent", "to", String.valueOf(b.lentTo()))))
+        .orElse(notFound());
   }
 
   @PostMapping("/books/{id}/return")
